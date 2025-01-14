@@ -24,9 +24,9 @@ def load_csv():
     global df
     try:
         df = pd.read_csv("responses.csv")
-        print("dataset loaded")
+        #print("dataset loaded")
     except Exception as e:
-        print(f"Error loading csv: {e}")
+        #print(f"Error loading csv: {e}")
 
 class ChartRequest(BaseModel):
     data: dict
@@ -91,7 +91,7 @@ async def visualize(request: Request):
 
         # Convert the image to a Base64 string
         base64_image = base64.b64encode(image_bytes.getvalue()).decode("utf-8")
-        print(base64_image)
+        #print(base64_image)
 
         return {"success": True, "image": f"data:image/png;base64,{base64_image}"}
     except Exception as e:
