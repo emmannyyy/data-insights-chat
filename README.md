@@ -111,7 +111,7 @@ Before you begin, ensure you have Node.js installed on your machine. You can dow
 4. **Run the back-end server:**
    ```bash
    cd data-insights-chat/visualization-server
-   python run server.py
+   python server.py
    ```
 
 
