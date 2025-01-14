@@ -11,6 +11,7 @@
   "dependencies": {
     "@ai-sdk/google": "^1.0.12",
     "ai": "^4.0.22",
+    "axios": "^1.7.9",
     "chart.js": "^3.5.1",
     "chartjs-node-canvas": "^4.1.6",
     "d3-cloud": "^1.2.7",

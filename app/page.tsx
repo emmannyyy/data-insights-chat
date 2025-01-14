@@ -1,16 +1,17 @@
 "use client";
-
+import { Message, ToolInvocation } from "ai";
 import { useChat } from "ai/react";
 import { useState } from "react";
 import Image from "next/image";
 import Title from "./title";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm"; // For GitHub-Flavored Markdown
-import { renderChart } from "@/app/actions/renderChart";
-import { renderWordCloud } from "@/app/actions/renderWordCloud";
 
 export default function Chat() {
-  const { messages, input, handleInputChange, handleSubmit } = useChat();
+  const { messages, input, handleInputChange, handleSubmit } = useChat({
+    maxSteps:5,
+  });
+
   const [loading, setLoading] = useState(false);
 
   const handleFormSubmit = async (e: React.FormEvent) => {
@@ -21,15 +22,24 @@ export default function Chat() {
   };
 
   return (
+    
     <div className="flex flex-col w-full sm:w-[95%] md:w-[80%] lg:max-w-lg py-16 mx-auto">
       {/* Title */}
       <Title />
       <div className="flex flex-col space-y-4 px-4 py-2 bg-gray-100 rounded-md shadow-lg overflow-y-auto h-[70vh]">
         {/* Messages */}
         {messages
-          .filter((m) => m.content.trim() !== "") // Filter out blank messages
-          .map((m) => {
-            console.log("Message content:", m.content); // Debugging content
+          //.filter((m:Message) => m.content.trim()!=="")
+          .filter((m:Message) =>
+          {
+            return( 
+            (m.toolInvocations && m.toolInvocations.map(toolInvocation =>toolInvocation.toolName==="executePythonCode")) ||
+            (m.content.trim()!=="")
+            )
+          }
+          )
+          .filter((m:Message) => m.content.trim()!== "" || m.toolInvocations?.map(toolInvocation => toolInvocation.toolName==="executePythonCode"))
+          .map((m: Message) => {
             return (
               <div
                 key={m.id}
@@ -49,7 +59,44 @@ export default function Chat() {
                     />
                   </div>
                 )}
-                {/* Message Content */}
+
+            {m.toolInvocations && m.toolInvocations.length > 0 && m.toolInvocations
+              && m.toolInvocations.map(toolInvocation => toolInvocation.toolName==="executePythonCode")?(
+            //.filter(toolInvocation => toolInvocation.toolName==="executePythonCode").length >0 ? (
+            <div
+              className={`px-4 py-2 rounded-lg ${
+                m.role === "user" ? "bg-blue-500 text-white" : "bg-gray-300 text-black"
+              }`}
+            >
+              {m.toolInvocations.map((toolInvocation: ToolInvocation) => {
+                if (toolInvocation.toolName === "executePythonCode" && 
+                  toolInvocation.state === "result" && toolInvocation.result.startsWith("data:image")) {
+                  return (
+                    <img
+                      key={toolInvocation.toolCallId}
+                      src={toolInvocation.result}
+                      alt="Visualization"
+                      className="max-w-full h-auto rounded"
+                    />
+                  );
+                } else if (toolInvocation.toolName === "exceutePythonCode") {
+                  return (
+                    <p key={toolInvocation.toolCallId} className="text-sm italic">
+                      Waiting for result...
+                    </p>
+                  );
+                } else {
+                  return (
+                    <p key={toolInvocation.toolCallId} className="text-sm italic">
+                      checking the data and thinking...
+                    </p>
+                  )
+                }
+              })}
+            </div>
+          ) : null}
+
+                {m.content.trim()!== ""?(
                 <div
                   className={`px-4 py-2 rounded-lg ${
                     m.role === "user"
@@ -63,12 +110,14 @@ export default function Chat() {
                       alt="Visualization"
                       className="max-w-full h-auto rounded"
                     />
-                  ) : (
+                  ) : m.content.trim()!=="" ? (
                     <ReactMarkdown remarkPlugins={[remarkGfm]}>
                       {m.content}
                     </ReactMarkdown>
-                  )}
+                  ): null}
                 </div>
+                ): null
+                }
                 {/* User Icon */}
                 {m.role === "user" && (
                   <div className="w-10 h-10 flex-shrink-0">

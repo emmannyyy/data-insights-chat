@@ -1,33 +1,6 @@
 <img src="https://qumo.ai/logo-black.svg" alt="Qumo AI Logo" width="200"/>
 
-## Mini Project Specification: AI Chat Interface for Data Insights
-
-### **Objective**
-
-Create an AI-driven chat interface that allows users to query and explore insights from a dataset containing survey responses about university students' academic stress and mental health management.
-
----
-
-### **Scope of the Project**
-
-The goal is to build a web application with the following key features:
-
-1. **AI Chat Interface**:
-
-   - A conversational interface where users can ask natural language questions about the dataset.
-   - Example queries:
-     - "What are the most common sources of academic stress reported by students?"
-     - "How many students rated their mental health below 5?"
-     - "What strategies are most frequently used to manage stress?"
-     - "What support services do students think would help the most?"
-
-2. **Data Querying**:
-
-   - Process the dataset to provide accurate answers to user queries.
-
----
-
-### **Requirements**
+## Data Analysis and Visualisation Chatbot
 
 #### **Core Features**
 
@@ -38,48 +11,72 @@ The goal is to build a web application with the following key features:
 
 2. **AI Integration**:
 
-   - Implement a basic AI or NLP solution to parse and understand user queries.
-   - The template project uses [Vercel AI SDK](https://sdk.vercel.ai/). However you may use other libraries you are familiar with like [LangChain](https://www.langchain.com/).
-   - You can obtain a free API key from Google Gemini [here](https://aistudio.google.com/).
+   - Utilises Gemini (using Vercel) to implement interactions with a LLM.
+   - Tools created to process data and generate image responses
+   - Concise but effective system prompts were written to allow for the LLM to act as an smart agent.
 
 3. **Frontend**:
+   
+   - User friendly, minimalistic chatbot interface
+   - Lightweight, and fast, using only Tailwind CSS.
 
-   - A clean, user-friendly interface for interacting with the chatbot.
-   - You may utilise UI component libraries such as [Chakra UI](https://www.chakra-ui.com/), [shadcn](https://ui.shadcn.com/) or [Material UI](https://mui.com/material-ui/).
-   - Note that the template project has been loaded with [Tailwind CSS](https://tailwindcss.com/).
+4. **Backend**:
 
-4. **Backend** (if applicable):
+   - A backend service written in Python, using FASTAPI to handle data visualisation.
 
-   - A backend service to handle dataset queries and handle API calls.
+5. **Data Processing**:
+   - To optimise image generation on the backend, the data was also pre-processed by the server as a dataframe
 
-5. **Error Handling** (optional):
+#### **Example Conversations**
 
-   - Provide meaningful feedback for invalid or unsupported queries.
-   - Sanitise LLM user inputs and design proper guardrails
+1. **Basic Query**:
+![image](/public/assets/Basic_query_1.png)
 
-#### **Bonus Features**
+2. **Visualisation request**:
+- Note: Sometimes, the chatbot illustrates the data without sorting it. To handle this, a follow-up prompt can be sent to the chatbot
 
-- Visualisations for common data insights (e.g., charts showing stress levels or support services requested).
-- A summary section for predefined insights (e.g., top 3 stress sources, average mental health rating).
-- Deploy on a cloud platform (e.g., Vercel, Netlify, AWS, Heroku).
+![image](public/assets/Visualisation_1.png)
+![image](public/assets/Visualisation_2.png)
+
+### Problems encountered
+### **Challenges Faced and Solutions**
+
+#### **1. Visualizations and Images Not Supported by Vercel Natively**
+- **Problem**: Vercel doesn’t natively support backend services for visualizations/images.
+- **Solution**: 
+  - Created a backend server using **FastAPI** to generate visualizations.
+  - Process flow:
+    1. User query sent to the backend server.
+    2. Visualization generated and returned to the chatbot.
+    3. Result displayed to the user in the chat interface.
 
 ---
 
-### **Deliverables**
+#### **2. Chatbot Hallucinates and Struggles to Find Data**
+- **Problem**: AI generated irrelevant/incorrect responses (hallucination) and struggled with ambiguous queries.
+- **Solution**: 
+  - **Custom Tools**: Developed `getTableData` and `getQuestions` to query the dataset directly.
+  - **Improved Prompts**: Updated system prompts to clearly explain the dataset structure, helping the AI better understand and respond accurately.
 
-1. **GitHub Repository Link**:
+---
 
-   - A public repository including:
-     - Codebase.
-     - README file containing a short write up explaining your approach and any considerations or limitations.
+#### **3. Results from API Calls Were Not Automatically Sent Back to Users**
+- **Problem**: Tool results from API calls were not being sent back to users.
+- **Solution**: 
+  - Reviewed each step of the AI’s process to ensure tool outputs were captured.
+  - Integrated tool results dynamically into the chatbot’s responses.
+  - Ensured users received complete and accurate responses from tool queries.
 
-## Understanding the Template Project
 
-This template project is built using React, Next.js (App Router), and TypeScript. The files you may edit are enclosed in the `app` folder, specifically:
+### Limitations and planned enhancements
+1. **Current limitations**
+   - Dataset is not mutable, and preloaded. 
+   - More complex operations on the data are not yet supported (e.g: wordCloud analysis etc)
 
-- `page.tsx`: The root or home page
-- `api/chat/route.ts`: An API endpoint to handle user queries (see guide [here](https://sdk.vercel.ai/docs/getting-started/nextjs-app-router))
-- `actions/`: A folder containing server functions to process dataset (an example function `countResponses` has been provided for you)
+2. **Planned Enhancements**
+   - Implement tools to allow for data mutation
+   - Support more elaborate data analysis using popular python libraries on backend
+
 
 ### Prerequisites
 
@@ -111,25 +108,23 @@ Before you begin, ensure you have Node.js installed on your machine. You can dow
 
    You may encounter dependency warnings. You may ignore them for the time being.
 
-4. **Run the development server:**
+4. **Run the back-end server:**
+   ```bash
+   cd data-insights-chat/visualization-server
+   python run server.py
+   ```
 
+
+5. **Run the development server:**
    ```bash
    npm run dev
    ```
 
-5. **Open your browser and visit:**
+6. **Open your browser and visit:**
 
    [http://localhost:3000](http://localhost:3000)
 
    You should see the application running.
-
-6. **Try an example query**
-
-   Try typing `How many responses are there in total?`
-
-   <img src="./example.png" alt="Example Screenshot" width="400"/>
-
-   Ensure that you have obtained and entered a valid Google Gemini API key before doing this.
 
 ---
 
@@ -150,28 +145,3 @@ The dataset `responses.csv` provided with this project contains survey responses
 - **On a scale from 1 to 10, how would you rate your overall mental health during the academic year?**: Numeric response where students rate their overall mental health on a scale from 1 to 10.
 
 - **What support services do you think would help improve your academic experience and mental health?**: Open-ended response where students suggest support services that could help improve their academic experience and mental health.
-
-## Note to Applicants
-
-We understand that completing all the features within the mini project can be challenging. The main objective of this project is to assess your technical capabilities and how you approach problem-solving.
-
-**Focus on what you can do best!**
-
-- Feel free to prioritise certain core features.
-- You can implement bonus features like visualisations or predefined insights summaries if time permits.
-- We encourage you to be creative and utilise any AI code generation tools to assist you in building the project.
-
-**Showcase your skills!**
-
-- We are more interested in your thought process, how you tackle challenges, and the overall functionality of your application.
-- In your GitHub repository's README file, document your approach, any libraries or frameworks used, and any limitations your project might have or challenges you faced.
-
-**Don't hesitate to ask for help!**
-
-- If you encounter any difficulties during the development process, feel free to search online resources, explore documentation, or reach out via email.
-
-**This mini project is designed to be a learning experience. We look forward to seeing your solutions!**
-
-## Confidentiality Notice
-
-**We kindly ask you to maintain the confidentiality of the project details and not share them with other applicants or post them online. This ensures a fair assessment for all candidates. Thank you for your understanding and cooperation.**

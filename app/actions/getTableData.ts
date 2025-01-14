@@ -1,7 +1,17 @@
 import { responses } from "@/app/data/responses"; // Adjust path as needed
 
+export interface TableRow {
+  id: string;
+  date: string;
+  workload: string;
+  stressSources: string;
+  strategies: string;
+  mentalHealthRating: number;
+  supportServices: string;
+}
+
 // Transform the data into a table-like format
-export function getTableData() {
+export default async function getTableData() {
   // Map through the responses to flatten the structure
   const tableData = responses.map((response) => ({
     id: response.id,
@@ -13,5 +23,5 @@ export function getTableData() {
     supportServices: response["What support services do you think would help improve your academic experience and mental health?"],
   }));
 
-  return tableData;
+  return JSON.stringify(tableData);
 }
